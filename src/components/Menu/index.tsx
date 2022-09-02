@@ -26,7 +26,7 @@ const Menu = (props) => {
 
   const activeMenuItem = getActiveMenuItem({ menuConfig: menuItems, pathname })
   const activeSubMenuItem = getActiveSubMenuItem({ menuItem: activeMenuItem, pathname })
-
+  
   const toggleTheme = useMemo(() => {
     return () => setTheme(isDark ? 'light' : 'dark')
   }, [setTheme, isDark])
@@ -48,7 +48,6 @@ const Menu = (props) => {
             <UserMenu />
           </>
         }
-        banner={showPhishingWarningBanner && typeof window !== 'undefined' && <PhishingWarningBanner />}
         isDark={isDark}
         toggleTheme={toggleTheme}
         currentLang={currentLanguage.code}

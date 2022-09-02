@@ -209,9 +209,9 @@ export function queryParametersToSwapState(
   nativeSymbol?: string,
   defaultOutputCurrency?: string,
 ): SwapState {
-  let inputCurrency = parseCurrencyFromURLParameter(parsedQs.inputCurrency) || (nativeSymbol ?? DEFAULT_INPUT_CURRENCY)
+  let inputCurrency = parseCurrencyFromURLParameter(parsedQs.inputCurrency) || (DEFAULT_INPUT_CURRENCY)
   let outputCurrency =
-    parseCurrencyFromURLParameter(parsedQs.outputCurrency) || (defaultOutputCurrency ?? DEFAULT_OUTPUT_CURRENCY)
+    parseCurrencyFromURLParameter(parsedQs.outputCurrency) || (DEFAULT_OUTPUT_CURRENCY)
   if (inputCurrency === outputCurrency) {
     if (typeof parsedQs.outputCurrency === 'string') {
       inputCurrency = ''
@@ -320,7 +320,7 @@ export const useFetchPairPrices = ({
         // Find out if Liquidity Pool has enough liquidity
         // low liquidity pool might mean that the price is incorrect
         // in that case try to get derived price
-        const hasEnoughLiquidity = pairHasEnoughLiquidity(data, timeWindow)
+        const hasEnoughLiquidity = true //pairHasEnoughLiquidity(data, timeWindow)
         const newPairData = normalizeChartData(data, timeWindow) || []
         if (newPairData.length > 0 && hasEnoughLiquidity) {
           dispatch(updatePairData({ pairData: newPairData, pairId, timeWindow }))

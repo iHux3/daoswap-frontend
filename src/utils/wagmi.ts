@@ -12,10 +12,7 @@ import { SafeConnector } from '@gnosis.pm/safe-apps-wagmi'
 const CHAINS = [
   bsc,
   // TODO: ETH
-  // mainnet,
-  bscTest,
-  rinkeby,
-  goerli,
+  // mainnet
 ]
 
 const getNodeRealUrl = (networkName: string) => {

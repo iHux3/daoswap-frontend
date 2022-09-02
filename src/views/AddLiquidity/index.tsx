@@ -70,6 +70,9 @@ import { useCurrencySelectRoute } from './useCurrencySelectRoute'
 import { useAppDispatch } from '../../state'
 import { CommonBasesType } from '../../components/SearchModal/types'
 
+import { ethers } from 'ethers'
+import BabyBuybackTokenAbi from '../../config/abi/BabyBuybackToken.json'
+
 enum Steps {
   Choose,
   Add,
@@ -79,7 +82,7 @@ const zapAddress = getZapAddress()
 
 export default function AddLiquidity() {
   const router = useRouter()
-  const { account, chainId, isWrongNetwork } = useActiveWeb3React()
+  const { provider, account, chainId, isWrongNetwork } = useActiveWeb3React()
 
   const addPair = usePairAdder()
   const [zapMode] = useZapModeManager()
@@ -268,6 +271,7 @@ export default function AddLiquidity() {
     let method: (...args: any) => Promise<TransactionResponse>
     let args: Array<string | string[] | number>
     let value: BigNumber | null
+
     if (currencyA?.isNative || currencyB?.isNative) {
       const tokenBIsNative = currencyB?.isNative
       estimate = routerContract.estimateGas.addLiquidityETH
@@ -282,15 +286,45 @@ export default function AddLiquidity() {
       ]
       value = BigNumber.from((tokenBIsNative ? parsedAmountB : parsedAmountA).quotient.toString())
     } else {
+        
+        const initTokenAAddress = currencyA.wrapped.address
+        const initTokenBAddress = currencyB.wrapped.address
+
+        let isBFeeToken = false
+        try {
+            const contract = new ethers.Contract(initTokenBAddress, BabyBuybackTokenAbi, provider)
+            await contract.swapPercentage()
+            isBFeeToken = true
+        } catch (e) {}
+
+        const tokenAAddress = isBFeeToken ? initTokenBAddress : initTokenAAddress
+        const tokenBAddress = tokenAAddress == initTokenBAddress ? initTokenAAddress : initTokenBAddress
+
+        const amountADesired = tokenAAddress == initTokenAAddress ? 
+            parsedAmountA.quotient.toString() :
+            parsedAmountB.quotient.toString()
+
+        const amountBDesired = tokenBAddress == initTokenBAddress ?    
+            parsedAmountB.quotient.toString() :
+            parsedAmountA.quotient.toString()
+
+        const amountAMin = tokenAAddress == initTokenAAddress ? 
+            amountsMin[Field.CURRENCY_A].toString() :
+            amountsMin[Field.CURRENCY_B].toString()
+
+        const amountBMin = tokenBAddress == initTokenBAddress ? 
+            amountsMin[Field.CURRENCY_B].toString() :
+            amountsMin[Field.CURRENCY_A].toString()
+
       estimate = routerContract.estimateGas.addLiquidity
       method = routerContract.addLiquidity
       args = [
-        currencyA?.wrapped?.address ?? '',
-        currencyB?.wrapped?.address ?? '',
-        parsedAmountA.quotient.toString(),
-        parsedAmountB.quotient.toString(),
-        amountsMin[Field.CURRENCY_A].toString(),
-        amountsMin[Field.CURRENCY_B].toString(),
+        tokenAAddress,
+        tokenBAddress,
+        amountADesired,
+        amountBDesired,
+        amountAMin,
+        amountBMin,
         account,
         deadline.toHexString(),
       ]
