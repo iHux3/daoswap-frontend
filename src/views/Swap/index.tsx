@@ -74,6 +74,8 @@ import { CommonBasesType } from '../../components/SearchModal/types'
 import replaceBrowserHistory from '../../utils/replaceBrowserHistory'
 import { currencyId } from '../../utils/currencyId'
 
+import { useAdditionalSlippage } from '../../hooks/useAdditionalSlippage';
+
 const Label = styled(Text)`
   font-size: 12px;
   font-weight: bold;
@@ -240,8 +242,10 @@ export default function Swap() {
   const maxAmountInput: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
+  const [additionalSlippage, additionalSlippageLoading] = useAdditionalSlippage(trade);
+
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(trade, allowedSlippage, recipient)
+  const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(trade, allowedSlippage + additionalSlippage, recipient)
 
   const { priceImpactWithoutFee } = computeTradePriceBreakdown(trade)
 
@@ -623,7 +627,8 @@ export default function Swap() {
                           disabled={
                             !isValid ||
                             approval !== ApprovalState.APPROVED ||
-                            (priceImpactSeverity > 3 && !isExpertMode)
+                            (priceImpactSeverity > 3 && !isExpertMode) ||
+                            additionalSlippageLoading
                           }
                         >
                           {priceImpactSeverity > 3 && !isExpertMode
@@ -651,7 +656,7 @@ export default function Swap() {
                         }}
                         id="swap-button"
                         width="100%"
-                        disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError}
+                        disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError || additionalSlippageLoading}
                       >
                         {swapInputError ||
                           (priceImpactSeverity > 3 && !isExpertMode

@@ -102,7 +102,7 @@ export const initialState: UserState = {
   tokens: {},
   pairs: {},
   timestamp: currentTimestamp(),
-  audioPlay: true,
+  audioPlay: false,
   isExchangeChartDisplayed: true,
   isSubgraphHealthIndicatorDisplayed: false,
   userChartViewMode: ChartViewMode.BASIC,

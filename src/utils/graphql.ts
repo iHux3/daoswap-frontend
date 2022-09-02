@@ -5,6 +5,7 @@ import { GraphQLClient } from 'graphql-request'
 // Mostly for dev environment
 // No production env check since production preview might also need them
 export const getGQLHeaders = (endpoint: string) => {
+    return {};
   if (endpoint === INFO_CLIENT) {
     return {
       'X-Sf':
@@ -21,9 +22,6 @@ export const getGQLHeaders = (endpoint: string) => {
 export const infoClient = new GraphQLClient(INFO_CLIENT, { headers: getGQLHeaders(INFO_CLIENT) })
 
 export const infoServerClient = new GraphQLClient(INFO_CLIENT, {
-  headers: {
-    'X-Sf': process.env.SF_HEADER,
-  },
   timeout: 5000,
 })
 

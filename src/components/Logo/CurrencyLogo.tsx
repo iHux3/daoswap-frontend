@@ -1,7 +1,7 @@
 import { ChainId, Currency } from '@pancakeswap/sdk'
 import { BinanceIcon } from '@pancakeswap/uikit'
 import { useMemo } from 'react'
-import { WrappedTokenInfo } from '@pancakeswap/tokens'
+import { bscTokens, WrappedTokenInfo } from '@pancakeswap/tokens'
 import styled from 'styled-components'
 import useHttpLocations from '../../hooks/useHttpLocations'
 import getTokenLogoURL from '../../utils/getTokenLogoURL'
@@ -28,7 +28,12 @@ export default function CurrencyLogo({
     if (currency?.isNative) return []
 
     if (currency?.isToken) {
-      const tokenLogoURL = getTokenLogoURL(currency)
+        let tokenLogoURL = "";
+        if (currency.address.toLowerCase() == bscTokens.dao.address.toLowerCase()) {
+            tokenLogoURL = "https://etherscan.io/token/images/daomaker_32.png";
+        } else {
+            tokenLogoURL = getTokenLogoURL(currency)
+        }
 
       if (currency instanceof WrappedTokenInfo) {
         if (!tokenLogoURL) return [...uriLocations]
