@@ -74,7 +74,7 @@ import { CommonBasesType } from '../../components/SearchModal/types'
 import replaceBrowserHistory from '../../utils/replaceBrowserHistory'
 import { currencyId } from '../../utils/currencyId'
 
-import { useAdditionalSlippage } from '../../hooks/useAdditionalSlippage';
+import { useAdditionalSlippage } from '../../hooks/useAdditionalSlippage'
 
 const Label = styled(Text)`
   font-size: 12px;
@@ -242,10 +242,14 @@ export default function Swap() {
   const maxAmountInput: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
-  const [additionalSlippage, additionalSlippageLoading] = useAdditionalSlippage(trade);
+  const [additionalSlippage, additionalSlippageLoading] = useAdditionalSlippage(trade)
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(trade, allowedSlippage + additionalSlippage, recipient)
+  const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(
+    trade,
+    allowedSlippage + additionalSlippage,
+    recipient,
+  )
 
   const { priceImpactWithoutFee } = computeTradePriceBreakdown(trade)
 
@@ -527,10 +531,6 @@ export default function Swap() {
                       commonBasesType={CommonBasesType.SWAP_LIMITORDER}
                     />
 
-                    <Box style={{ display: isShowAccessToken ? 'block' : 'none' }}>
-                      <AccessRisk currency={currencies[Field.OUTPUT]} />
-                    </Box>
-
                     {isExpertMode && recipient !== null && !showWrap ? (
                       <>
                         <AutoRow justify="space-between" style={{ padding: '0 1rem' }}>
@@ -656,7 +656,12 @@ export default function Swap() {
                         }}
                         id="swap-button"
                         width="100%"
-                        disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError || additionalSlippageLoading}
+                        disabled={
+                          !isValid ||
+                          (priceImpactSeverity > 3 && !isExpertMode) ||
+                          !!swapCallbackError ||
+                          additionalSlippageLoading
+                        }
                       >
                         {swapInputError ||
                           (priceImpactSeverity > 3 && !isExpertMode
