@@ -14,12 +14,23 @@ export function useAdditionalSlippage(trade: Trade<Currency, Currency, TradeType
     const getContractFees = async (): Promise<void> => {
       setLoading(true)
       try {
-        const tokenAddress = (trade.inputAmount.currency as Token).address
-        const contract = new ethers.Contract(tokenAddress, BabyBuybackTokenAbi, provider)
-        const swapPercentage = await contract.swapPercentage()
-        const burnPercentage = await contract.burnPercentage()
-        const feePercentage = await contract.feePercentage()
-        setResult((swapPercentage + burnPercentage + feePercentage) * 10)
+        let totalFee = 0;
+        try {
+            const tokenAddress = (trade.inputAmount.currency as Token).address
+            const contract = new ethers.Contract(tokenAddress, BabyBuybackTokenAbi, provider)
+            totalFee += await contract.swapPercentage()
+            totalFee += await contract.burnPercentage()
+            totalFee += await contract.feePercentage()
+        } catch (e) {}
+
+        try {
+            const tokenAddress = (trade.outputAmount.currency as Token).address
+            const contract = new ethers.Contract(tokenAddress, BabyBuybackTokenAbi, provider)
+            totalFee += await contract.burnPercentage()
+            totalFee += await contract.feePercentage()
+        } catch (e) {}
+       
+        setResult(totalFee * 10)
       } catch (e) {
         setResult(0)
       }
